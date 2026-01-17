@@ -16,9 +16,7 @@ pnpm-debug.log*
 dist/
 build/
 *.tsbuildinfo
-
-# Vercel API build (keep source, ignore built file in git but include in deployment)
-# api/index.js is built during npm run build
+api/index.js
 
 # Vite
 .vite/

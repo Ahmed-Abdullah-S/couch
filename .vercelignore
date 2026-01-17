@@ -1,9 +1,2 @@
-# Ignore TypeScript source in api folder
-# Only use the bundled JavaScript file
-api/index.ts
-
-# Ignore server source files (they're bundled into api/index.js)
-server/
-
-# Ignore build scripts
-script/
+# Don't ignore anything - let build run first
+# The build will create api/index.js from api/index.ts

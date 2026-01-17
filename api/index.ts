@@ -70,10 +70,8 @@ async function initializeApp() {
       // Check environment variables before importing routes
       checkEnvVars();
       
-      // Set production mode
-      process.env.NODE_ENV = "production";
-      
       // Import routes dynamically after env check
+      // Note: NODE_ENV is set to "production" at build time via esbuild define
       // In production (Vercel), server code is bundled, so we need to import from the source
       // The build process will bundle this correctly
       const { registerRoutes } = await import("../server/routes");
