@@ -133,17 +133,10 @@ export function LoadingSpinner({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   );
 }
 
-// Full page loading wrapper (used inside LanguageProvider)
+// Full page loading wrapper (can be used outside LanguageProvider)
 export function LoadingFullPage() {
-  const { language, dir, t } = useLanguage();
-  
-  const title = t.landing.title;
-  const loadingText = language === 'ar' 
-    ? 'جاري إعداد رحلة لياقتك الشخصية...' 
-    : 'Preparing your personalized fitness journey...';
-
   return (
-    <div dir={dir} className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-4 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden">
         {[...Array(20)].map((_, i) => (
@@ -228,9 +221,9 @@ export function LoadingFullPage() {
               backgroundSize: "200%",
             }}
           >
-            {title}
+            YOUR COACH
           </motion.h1>
-          <p className="text-muted-foreground text-lg">{loadingText}</p>
+          <p className="text-muted-foreground text-lg">Preparing your personalized fitness journey...</p>
         </motion.div>
 
         {/* Animated Progress Ring */}
@@ -303,4 +296,3 @@ export function LoadingFullPage() {
     </div>
   );
 }
-

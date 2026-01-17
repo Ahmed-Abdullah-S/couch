@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "tsx --env-file=.env server/index.ts",
     "build": "tsx script/build.ts",
-    "start": "node dist/index.js",
+    "start": "node dist/index.cjs",
     "check": "tsc",
     "db:push": "drizzle-kit push --env-file=.env",
     "db:seed": "tsx --env-file=.env server/seed.ts"
