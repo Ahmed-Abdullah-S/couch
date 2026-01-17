@@ -6,8 +6,8 @@ export type Direction = 'ltr' | 'rtl';
 export const STORAGE_KEY = 'app-language';
 
 export function getLanguage(): Language {
-  if (typeof window === 'undefined') return 'en';
-  return (localStorage.getItem(STORAGE_KEY) as Language) || 'en';
+  if (typeof window === 'undefined') return 'ar';
+  return (localStorage.getItem(STORAGE_KEY) as Language) || 'ar';
 }
 
 export function setLanguage(lang: Language) {
