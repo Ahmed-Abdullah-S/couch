@@ -5,7 +5,7 @@
  * 1. Copy audio-playback-worklet.js to your public/ folder
  * 2. Import and use the React hooks in your components
  * 
- * Example:
+ * Exale:
  * ```tsx
  * import { useVoiceRecorder, useVoiceStream } from "./audio";
  * 
