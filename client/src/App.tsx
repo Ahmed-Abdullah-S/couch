@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/Layout";
 import { LoadingFullPage } from "@/components/Loading";
 import { useAuth } from "@/hooks/use-auth";
+import { useProfile } from "@/hooks/use-profile";
 import { LanguageProvider } from "@/hooks/use-language";
 
 import Landing from "@/pages/Landing";
@@ -22,42 +23,41 @@ import Settings from "@/pages/Settings";
 import NotFound from "@/pages/not-found";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
-  const { user, isLoading } = useAuth();
-  const [profile, setProfile] = React.useState<any>(null);
-  const [profileLoading, setProfileLoading] = React.useState(true);
+  const { user, isLoading: authLoading } = useAuth();
+  const { profile, isLoading: profileLoading } = useProfile();
 
-  React.useEffect(() => {
-    if (user) {
-      fetch("/api/profile")
-        .then(res => {
-          if (res.ok) return res.json();
-          return null;
-        })
-        .then(data => {
-          setProfile(data);
-          setProfileLoading(false);
-        })
-        .catch(() => {
-          setProfile(null);
-          setProfileLoading(false);
-        });
-    }
-  }, [user]);
-
-  if (isLoading || profileLoading) {
+  if (authLoading || profileLoading) {
     return <LoadingFullPage />;
   }
   
-  if (!user) return <Redirect to="/auth" />;
+  if (!user) {
+    return <Redirect to="/auth" />;
+  }
   
   // Redirect to onboarding if no profile
-  if (!profile) return <Redirect to="/app/onboarding" />;
+  if (!profile) {
+    return <Redirect to="/app/onboarding" />;
+  }
 
   return (
     <Layout>
       <Component />
     </Layout>
   );
+}
+
+function OnboardingRoute() {
+  const { user, isLoading } = useAuth();
+  
+  if (isLoading) {
+    return <LoadingFullPage />;
+  }
+  
+  if (!user) {
+    return <Redirect to="/auth" />;
+  }
+  
+  return <Onboarding />;
 }
 
 function Router() {
@@ -67,15 +67,7 @@ function Router() {
       <Route path="/auth" component={AuthPage} />
       
       {/* Protected Routes */}
-      <Route path="/app/onboarding">
-        {/* Onboarding doesn't use standard Layout usually, to focus attention */}
-        {() => {
-           const { user, isLoading } = useAuth();
-           if (isLoading) return <LoadingFullPage />;
-           if (!user) return <Redirect to="/auth" />;
-           return <Onboarding />;
-        }}
-      </Route>
+      <Route path="/app/onboarding" component={OnboardingRoute} />
 
       <Route path="/app" component={() => <ProtectedRoute component={Dashboard} />} />
       <Route path="/app/chat" component={() => <ProtectedRoute component={Chat} />} />

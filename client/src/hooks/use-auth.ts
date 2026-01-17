@@ -1,10 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api, type InsertUser } from "@shared/routes";
-import { useLocation } from "wouter";
 
 export function useAuth() {
   const queryClient = useQueryClient();
-  const [, setLocation] = useLocation();
 
   const { data: user, isLoading, error } = useQuery({
     queryKey: [api.auth.me.path],
@@ -24,7 +22,10 @@ export function useAuth() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       });
-      if (!res.ok) throw new Error("Login failed");
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({ message: "Login failed" }));
+        throw new Error(error.message || "Login failed");
+      }
       return await res.json();
     },
     onSuccess: () => {
@@ -39,7 +40,10 @@ export function useAuth() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(credentials),
       });
-      if (!res.ok) throw new Error("Registration failed");
+      if (!res.ok) {
+        const error = await res.json().catch(() => ({ message: "Registration failed" }));
+        throw new Error(error.message || "Registration failed");
+      }
       return await res.json();
     },
     onSuccess: () => {
@@ -53,7 +57,8 @@ export function useAuth() {
     },
     onSuccess: () => {
       queryClient.setQueryData([api.auth.me.path], null);
-      setLocation("/");
+      // Redirect will be handled by the component using this hook
+      window.location.href = "/";
     },
   });
 

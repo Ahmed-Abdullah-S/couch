@@ -33,25 +33,36 @@ export default function AuthPage() {
     try {
       if (type === "login") {
         await login(data);
-        // After login, check if profile exists
-        const profileRes = await fetch("/api/profile");
-        if (profileRes.ok) {
-          const profile = await profileRes.json();
-          if (!profile) {
-            setLocation("/app/onboarding");
-            return;
+        // Wait for auth state to update, then check profile
+        await new Promise(resolve => setTimeout(resolve, 200));
+        try {
+          const profileRes = await fetch("/api/profile");
+          if (profileRes.ok) {
+            const profile = await profileRes.json();
+            if (!profile) {
+              setLocation("/app/onboarding");
+              return;
+            }
           }
+          setLocation("/app");
+        } catch {
+          setLocation("/app/onboarding");
         }
-        setLocation("/app");
       } else {
         await register(data);
-        toast({ title: "Success", description: language === 'ar' ? 'مرحباً بك! دعنا نبدأ بإعداد ملفك الشخصي' : "Welcome! Let's set up your profile." });
+        toast({ 
+          title: language === 'ar' ? 'نجح' : "Success", 
+          description: language === 'ar' ? 'مرحباً بك! دعنا نبدأ بإعداد ملفك الشخصي' : "Welcome! Let's set up your profile." 
+        });
+        // Wait for auth state to update before redirecting
+        await new Promise(resolve => setTimeout(resolve, 200));
         setLocation("/app/onboarding");
       }
     } catch (error: any) {
+      const errorMessage = error?.message || (language === 'ar' ? 'حدث خطأ' : 'An error occurred');
       toast({ 
-        title: "Error", 
-        description: error.message,
+        title: language === 'ar' ? 'خطأ' : "Error", 
+        description: errorMessage,
         variant: "destructive"
       });
     }
