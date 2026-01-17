@@ -46,6 +46,7 @@ async function buildAll() {
   ];
   const externals = allDeps.filter((dep) => !allowlist.includes(dep));
 
+  // Build main server bundle
   await esbuild({
     entryPoints: ["server/index.ts"],
     platform: "node",
@@ -58,6 +59,25 @@ async function buildAll() {
     minify: true,
     external: externals,
     logLevel: "info",
+  });
+
+  // Build Vercel API handler (bundles server code)
+  // This creates a bundled version that includes all server dependencies
+  console.log("building Vercel API handler...");
+  await esbuild({
+    entryPoints: ["api/index.ts"],
+    platform: "node",
+    bundle: true,
+    format: "esm",
+    outfile: "api/index.js",
+    define: {
+      "process.env.NODE_ENV": '"production"',
+    },
+    minify: true,
+    external: externals,
+    logLevel: "info",
+    // Resolve imports from server directory
+    resolveExtensions: [".ts", ".js", ".json"],
   });
 }
 

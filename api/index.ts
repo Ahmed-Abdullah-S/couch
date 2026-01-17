@@ -74,6 +74,8 @@ async function initializeApp() {
       process.env.NODE_ENV = "production";
       
       // Import routes dynamically after env check
+      // In production (Vercel), server code is bundled, so we need to import from the source
+      // The build process will bundle this correctly
       const { registerRoutes } = await import("../server/routes");
       await registerRoutes(httpServer, app);
       

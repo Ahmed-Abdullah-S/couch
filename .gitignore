@@ -17,6 +17,9 @@ dist/
 build/
 *.tsbuildinfo
 
+# Vercel API build (keep source, ignore built file in git but include in deployment)
+# api/index.js is built during npm run build
+
 # Vite
 .vite/
 vite.config.*.timestamp-*
