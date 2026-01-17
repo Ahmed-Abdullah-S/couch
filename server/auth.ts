@@ -3,12 +3,12 @@ import { Strategy as LocalStrategy } from "passport-local";
 import { Express } from "express";
 import session from "express-session";
 import { storage } from "./storage";
-import { User, insertUserSchema } from "@shared/schema";
+import { User as UserType, insertUserSchema } from "@shared/schema";
 import { comparePasswords } from "./utils";
 
 declare global {
   namespace Express {
-    interface User extends User {}
+    interface User extends UserType {}
   }
 }
 
