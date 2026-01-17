@@ -1,4 +1,5 @@
 import { useWorkouts } from "@/hooks/use-workouts";
+import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -10,6 +11,7 @@ import { format } from "date-fns";
 import { Card, CardContent } from "@/components/ui/card";
 
 export default function Workouts() {
+  const { t, dir } = useLanguage();
   const { workouts, logWorkout, isLogging } = useWorkouts();
   const [open, setOpen] = useState(false);
 
@@ -26,15 +28,15 @@ export default function Workouts() {
   });
 
   const onSubmit = async (data: any) => {
-    // Coerce strings to numbers
+    // Format data to match database schema (exercises instead of sets)
     const formattedData = {
-      ...data,
-      sets: data.sets.map((s: any) => ({
-        ...s,
+      name: data.name,
+      duration: 60, // Default duration
+      exercises: data.sets.map((s: any) => ({
+        name: s.exercise,
         sets: Number(s.sets),
         reps: Number(s.reps),
         weight: Number(s.weight),
-        rpe: Number(s.rpe)
       }))
     };
     await logWorkout(formattedData);
@@ -43,40 +45,40 @@ export default function Workouts() {
   };
 
   return (
-    <div className="space-y-6">
+    <div dir={dir} className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-display font-bold">Workout History</h1>
-          <p className="text-muted-foreground">Every session counts.</p>
+          <h1 className="text-3xl font-display font-bold">{t.workouts.title}</h1>
+          <p className="text-muted-foreground">{t.workouts.subtitle}</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="bg-primary text-black font-bold">
-              <Plus className="mr-2 h-4 w-4" /> Log Workout
+              <Plus className={`h-4 w-4 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} /> {t.workouts.logWorkout}
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Log Session</DialogTitle>
+              <DialogTitle>{t.workouts.logSession}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6 mt-4">
               <div className="space-y-2">
-                <Label>Workout Name</Label>
+                <Label>{t.workouts.workoutName}</Label>
                 <Input {...register("name")} placeholder="Push Day A" required />
               </div>
               
               <div className="space-y-4">
                 <div className="flex justify-between items-center">
-                  <h3 className="font-bold">Exercises</h3>
+                  <h3 className="font-bold">{t.workouts.exercises}</h3>
                   <Button type="button" variant="outline" size="sm" onClick={() => append({ exercise: "", sets: 3, reps: 10, weight: 0, rpe: 8 })}>
-                    Add Exercise
+                    {t.workouts.addExercise}
                   </Button>
                 </div>
                 
                 {fields.map((field, index) => (
                   <div key={field.id} className="grid grid-cols-12 gap-2 items-end p-4 bg-secondary/20 rounded-lg">
                     <div className="col-span-12 sm:col-span-4 space-y-1">
-                      <Label className="text-xs">Exercise</Label>
+                      <Label className="text-xs">{t.workouts.exercise}</Label>
                       <Input {...register(`sets.${index}.exercise`)} placeholder="Bench Press" />
                     </div>
                     <div className="col-span-3 sm:col-span-2 space-y-1">
@@ -104,7 +106,7 @@ export default function Workouts() {
                 ))}
               </div>
 
-              <Button type="submit" className="w-full bg-primary text-black font-bold" disabled={isLogging}>Save Workout</Button>
+              <Button type="submit" className="w-full bg-primary text-black font-bold" disabled={isLogging}>{t.workouts.save}</Button>
             </form>
           </DialogContent>
         </Dialog>
@@ -124,20 +126,23 @@ export default function Workouts() {
                 </div>
               </div>
               <div className="space-y-2">
-                {workout.sets.map((set: any, i: number) => (
+                {workout.exercises && Array.isArray(workout.exercises) && workout.exercises.map((exercise: any, i: number) => (
                   <div key={i} className="flex justify-between text-sm py-1 border-b border-white/5 last:border-0">
-                    <span className="font-medium">{set.exercise}</span>
+                    <span className="font-medium">{exercise.name || exercise.exercise}</span>
                     <span className="text-muted-foreground font-mono">
-                      {set.sets} x {set.reps} @ {set.weight}kg (RPE {set.rpe})
+                      {exercise.sets} x {exercise.reps} @ {exercise.weight}kg{exercise.rpe ? ` (RPE ${exercise.rpe})` : ''}
                     </span>
                   </div>
                 ))}
+                {(!workout.exercises || workout.exercises.length === 0) && (
+                  <p className="text-sm text-muted-foreground">No exercises recorded</p>
+                )}
               </div>
             </CardContent>
           </Card>
         ))}
         {!workouts?.length && (
-          <div className="text-center py-20 text-muted-foreground">No workouts logged yet. Go lift something heavy!</div>
+          <div className="text-center py-20 text-muted-foreground">{t.workouts.noWorkouts}</div>
         )}
       </div>
     </div>

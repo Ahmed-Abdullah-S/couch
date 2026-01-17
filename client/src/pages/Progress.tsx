@@ -1,4 +1,5 @@
 import { useProgress } from "@/hooks/use-progress";
+import { useLanguage } from "@/hooks/use-language";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, CartesianGrid } from "recharts";
@@ -10,6 +11,7 @@ import { useState } from "react";
 import { Plus } from "lucide-react";
 
 export default function Progress() {
+  const { t, dir } = useLanguage();
   const { logs, logProgress, isLogging } = useProgress();
   const [open, setOpen] = useState(false);
   const [weight, setWeight] = useState("");
@@ -27,28 +29,28 @@ export default function Progress() {
   })).reverse() || [];
 
   return (
-    <div className="space-y-6">
+    <div dir={dir} className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-display font-bold">Progress Tracking</h1>
-          <p className="text-muted-foreground">Visualize your gains.</p>
+          <h1 className="text-3xl font-display font-bold">{t.progress.title}</h1>
+          <p className="text-muted-foreground">{t.progress.subtitle}</p>
         </div>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
             <Button className="bg-primary text-black font-bold">
-              <Plus className="mr-2 h-4 w-4" /> Log Weight
+              <Plus className={`h-4 w-4 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} /> {t.progress.logProgress}
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Log Check-in</DialogTitle>
+              <DialogTitle>{t.progress.logStats}</DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4 mt-4">
               <div className="space-y-2">
-                <Label>Current Weight (kg)</Label>
+                <Label>{t.progress.weight}</Label>
                 <Input type="number" step="0.1" value={weight} onChange={e => setWeight(e.target.value)} required />
               </div>
-              <Button type="submit" className="w-full bg-primary text-black" disabled={isLogging}>Save Log</Button>
+              <Button type="submit" className="w-full bg-primary text-black" disabled={isLogging}>{t.common.save}</Button>
             </form>
           </DialogContent>
         </Dialog>
@@ -56,7 +58,7 @@ export default function Progress() {
 
       <Card className="border-border bg-card">
         <CardHeader>
-          <CardTitle>Body Weight Trend</CardTitle>
+          <CardTitle>{t.progress.weightTrend}</CardTitle>
         </CardHeader>
         <CardContent className="h-[400px]">
           <ResponsiveContainer width="100%" height="100%">

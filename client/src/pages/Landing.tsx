@@ -1,23 +1,28 @@
 import { Link } from "wouter";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useLanguage } from "@/hooks/use-language";
 import { CheckCircle2, ChevronRight, Dumbbell, Brain, Zap } from "lucide-react";
 
 export default function Landing() {
+  const { t, dir } = useLanguage();
+  
   return (
-    <div className="min-h-screen bg-background overflow-hidden relative">
+    <div dir={dir} className="min-h-screen bg-background overflow-hidden relative">
       {/* Background Gradient */}
       <div className="absolute top-0 left-0 w-full h-[600px] bg-gradient-to-b from-primary/10 to-transparent pointer-events-none" />
 
       {/* Navbar */}
       <nav className="relative z-10 max-w-7xl mx-auto px-6 py-8 flex justify-between items-center">
-        <div className="text-3xl font-display font-bold text-primary tracking-wider">YOUR COACH</div>
-        <div className="flex gap-4">
+        <div className="text-3xl font-display font-bold text-primary tracking-wider">{t.landing.title}</div>
+        <div className="flex gap-4 items-center">
+          <LanguageSwitcher />
           <Link href="/auth?mode=login">
-            <Button variant="ghost" className="text-foreground hover:text-primary">Log In</Button>
+            <Button variant="ghost" className="text-foreground hover:text-primary">{t.landing.login}</Button>
           </Link>
           <Link href="/auth?mode=register">
-            <Button className="bg-primary text-black font-bold hover:bg-primary/90">Get Started</Button>
+            <Button className="bg-primary text-black font-bold hover:bg-primary/90">{t.landing.getStarted}</Button>
           </Link>
         </div>
       </nav>
@@ -32,16 +37,16 @@ export default function Landing() {
             className="space-y-8"
           >
             <h1 className="text-6xl md:text-8xl font-display font-bold leading-[0.9] text-white">
-              BUILD YOUR <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">DREAM BODY</span>
+              {t.landing.heroTitle} <br />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-orange-400">{t.landing.heroHighlight}</span>
             </h1>
             <p className="text-xl text-muted-foreground max-w-lg">
-              AI-powered bodybuilding coaching tailored to your DNA. Get personalized workout plans, nutrition strategies, and 24/7 expert guidance.
+              {t.landing.heroDescription}
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Link href="/auth?mode=register">
                 <Button size="lg" className="h-14 px-8 text-lg font-bold bg-primary text-black hover:bg-primary/90 hover:scale-105 transition-transform">
-                  Start Your Transformation <ChevronRight className="ml-2 w-5 h-5" />
+                  {t.landing.startTransformation} <ChevronRight className={`w-5 h-5 ${dir === 'rtl' ? 'mr-2 scale-x-[-1]' : 'ml-2'}`} />
                 </Button>
               </Link>
             </div>
@@ -71,18 +76,18 @@ export default function Landing() {
           <div className="grid md:grid-cols-3 gap-8">
             <FeatureCard 
               icon={<Brain className="w-10 h-10 text-primary" />}
-              title="AI Intelligence"
-              description="Your coach learns from your feedback and adapts your plan in real-time."
+              title={t.landing.feature1Title}
+              description={t.landing.feature1Desc}
             />
             <FeatureCard 
               icon={<Dumbbell className="w-10 h-10 text-primary" />}
-              title="Custom Workouts"
-              description="Generated routines based on your equipment, schedule, and goals."
+              title={t.landing.feature2Title}
+              description={t.landing.feature2Desc}
             />
             <FeatureCard 
               icon={<Zap className="w-10 h-10 text-primary" />}
-              title="Dynamic Nutrition"
-              description="Macro-perfect meal plans that adjust as your body composition changes."
+              title={t.landing.feature3Title}
+              description={t.landing.feature3Desc}
             />
           </div>
         </div>

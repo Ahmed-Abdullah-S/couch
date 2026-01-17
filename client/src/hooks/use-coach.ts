@@ -37,37 +37,48 @@ export function useCoach() {
   };
 }
 
-export function useChat() {
+export function useChat(threadId?: number) {
   const queryClient = useQueryClient();
 
-  const { data: history, isLoading } = useQuery({
-    queryKey: [api.coach.history.path],
+  const { data: threads, isLoading: isLoadingThreads } = useQuery({
+    queryKey: [api.chat.threads.path],
     queryFn: async () => {
-      const res = await fetch(api.coach.history.path);
-      if (!res.ok) throw new Error("Failed to fetch chat history");
+      const res = await fetch(api.chat.threads.path);
+      if (!res.ok) throw new Error("Failed to fetch threads");
       return await res.json();
     },
   });
 
-  const sendMessageMutation = useMutation({
-    mutationFn: async (message: string) => {
-      const res = await fetch(api.coach.chat.path, {
+  const { data: messages, isLoading: isLoadingMessages } = useQuery({
+    queryKey: [api.chat.messages(threadId || 0).path],
+    queryFn: async () => {
+      if (!threadId) return [];
+      const res = await fetch(api.chat.messages(threadId).path);
+      if (!res.ok) throw new Error("Failed to fetch messages");
+      return await res.json();
+    },
+    enabled: !!threadId,
+  });
+
+  const createThreadMutation = useMutation({
+    mutationFn: async (title?: string) => {
+      const res = await fetch(api.chat.threads.path, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message }),
+        body: JSON.stringify({ title }),
       });
-      if (!res.ok) throw new Error("Failed to send message");
+      if (!res.ok) throw new Error("Failed to create thread");
       return await res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: [api.coach.history.path] });
+      queryClient.invalidateQueries({ queryKey: [api.chat.threads.path] });
     },
   });
 
   return {
-    history,
-    isLoading,
-    sendMessage: sendMessageMutation.mutateAsync,
-    isSending: sendMessageMutation.isPending,
+    threads,
+    messages,
+    isLoading: isLoadingThreads || isLoadingMessages,
+    createThread: createThreadMutation.mutateAsync,
   };
 }

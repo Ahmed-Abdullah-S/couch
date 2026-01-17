@@ -15,7 +15,7 @@ export function useProgress() {
 
   const logProgressMutation = useMutation({
     mutationFn: async (data: Omit<InsertProgressLog, "userId">) => {
-      const res = await fetch(api.progress.log.path, {
+      const res = await fetch(api.progress.create.path, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

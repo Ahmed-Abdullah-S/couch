@@ -22,7 +22,7 @@ export function useWorkouts() {
 
   const logWorkoutMutation = useMutation({
     mutationFn: async (data: CreateWorkoutInput) => {
-      const res = await fetch(api.workouts.log.path, {
+      const res = await fetch(api.workouts.create.path, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),

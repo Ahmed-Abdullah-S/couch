@@ -1,10 +1,13 @@
 import { Switch, Route, Redirect } from "wouter";
+import React from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Layout } from "@/components/Layout";
+import { LoadingFullPage } from "@/components/Loading";
 import { useAuth } from "@/hooks/use-auth";
+import { LanguageProvider } from "@/hooks/use-language";
 
 import Landing from "@/pages/Landing";
 import AuthPage from "@/pages/AuthPage";
@@ -20,12 +23,35 @@ import NotFound from "@/pages/not-found";
 
 function ProtectedRoute({ component: Component }: { component: React.ComponentType }) {
   const { user, isLoading } = useAuth();
+  const [profile, setProfile] = React.useState<any>(null);
+  const [profileLoading, setProfileLoading] = React.useState(true);
 
-  if (isLoading) return <div className="min-h-screen bg-background flex items-center justify-center text-primary">Loading...</div>;
+  React.useEffect(() => {
+    if (user) {
+      fetch("/api/profile")
+        .then(res => {
+          if (res.ok) return res.json();
+          return null;
+        })
+        .then(data => {
+          setProfile(data);
+          setProfileLoading(false);
+        })
+        .catch(() => {
+          setProfile(null);
+          setProfileLoading(false);
+        });
+    }
+  }, [user]);
+
+  if (isLoading || profileLoading) {
+    return <LoadingFullPage />;
+  }
+  
   if (!user) return <Redirect to="/auth" />;
-
-  // Note: Could add check for !user.profile here and redirect to /app/onboarding if missing
-  // But strictly 'user' check is enough for auth protection.
+  
+  // Redirect to onboarding if no profile
+  if (!profile) return <Redirect to="/app/onboarding" />;
 
   return (
     <Layout>
@@ -45,7 +71,7 @@ function Router() {
         {/* Onboarding doesn't use standard Layout usually, to focus attention */}
         {() => {
            const { user, isLoading } = useAuth();
-           if (isLoading) return null;
+           if (isLoading) return <LoadingFullPage />;
            if (!user) return <Redirect to="/auth" />;
            return <Onboarding />;
         }}
@@ -67,10 +93,12 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Router />
-      </TooltipProvider>
+      <LanguageProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Router />
+        </TooltipProvider>
+      </LanguageProvider>
     </QueryClientProvider>
   );
 }

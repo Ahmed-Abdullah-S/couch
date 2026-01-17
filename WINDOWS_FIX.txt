@@ -1,0 +1,11 @@
+# ✅ FIXED FOR WINDOWS!
+# All npm scripts now work on Windows PowerShell
+
+# Your .env file should have these lines at the end:
+PORT=5000
+NODE_ENV=development
+
+# Add those two lines to your .env file, then run:
+npm run db:push
+npm run db:seed
+npm run dev

@@ -2,6 +2,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { useProfile } from "@/hooks/use-profile";
 import { useWorkouts } from "@/hooks/use-workouts";
 import { useTrainingPlan } from "@/hooks/use-plans";
+import { useLanguage } from "@/hooks/use-language";
+import { Loading } from "@/components/Loading";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
@@ -9,26 +11,31 @@ import { Calendar, ChevronRight, Dumbbell, Flame, Trophy } from "lucide-react";
 import { format } from "date-fns";
 
 export default function Dashboard() {
-  const { user } = useAuth();
-  const { profile } = useProfile();
-  const { workouts } = useWorkouts();
-  const { plan } = useTrainingPlan();
+  const { t, dir } = useLanguage();
+  const { user, isLoading: authLoading } = useAuth();
+  const { profile, isLoading: profileLoading } = useProfile();
+  const { workouts, isLoading: workoutsLoading } = useWorkouts();
+  const { plan, isGenerating } = useTrainingPlan();
+
+  if (authLoading || profileLoading) {
+    return <Loading />;
+  }
 
   const lastWorkout = workouts?.[0];
   const workoutCount = workouts?.length || 0;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div dir={dir} className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-4xl font-display font-bold text-white uppercase">
-            Welcome Back, {user?.username}
+            {t.dashboard.title}, {user?.username}
           </h1>
-          <p className="text-muted-foreground mt-1">Ready to crush today's session?</p>
+          <p className="text-muted-foreground mt-1">{t.dashboard.subtitle}</p>
         </div>
         <Link href="/app/workouts">
           <Button className="bg-primary text-black font-bold hover:bg-primary/90">
-            <Dumbbell className="mr-2 h-4 w-4" /> Log Workout
+            <Dumbbell className={`h-4 w-4 ${dir === 'rtl' ? 'ml-2' : 'mr-2'}`} /> {t.dashboard.logWorkout}
           </Button>
         </Link>
       </div>
@@ -36,19 +43,19 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <StatsCard 
           icon={<Flame className="h-6 w-6 text-orange-500" />}
-          label="Current Goal"
+          label={t.dashboard.currentGoal}
           value={profile?.goal?.toUpperCase() || "NOT SET"}
           subValue={`${profile?.weight || 0} kg`}
         />
         <StatsCard 
           icon={<Trophy className="h-6 w-6 text-yellow-500" />}
-          label="Total Workouts"
+          label={t.dashboard.totalWorkouts}
           value={workoutCount.toString()}
-          subValue="Keep grinding!"
+          subValue={t.dashboard.keepGrinding}
         />
         <StatsCard 
           icon={<Calendar className="h-6 w-6 text-blue-500" />}
-          label="Last Session"
+          label={t.dashboard.lastSession}
           value={lastWorkout ? format(new Date(lastWorkout.date!), 'MMM d') : "None"}
           subValue={lastWorkout?.name || "No data"}
         />
@@ -57,9 +64,9 @@ export default function Dashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         <Card className="border-border bg-card">
           <CardHeader className="flex flex-row items-center justify-between">
-            <CardTitle>Current Plan</CardTitle>
+            <CardTitle>{t.dashboard.currentPlan}</CardTitle>
             <Link href="/app/plan/training">
-              <Button variant="ghost" size="sm" className="text-primary">View Full <ChevronRight className="w-4 h-4" /></Button>
+              <Button variant="ghost" size="sm" className="text-primary">{t.dashboard.viewFull} <ChevronRight className={`w-4 h-4 ${dir === 'rtl' ? 'scale-x-[-1]' : ''}`} /></Button>
             </Link>
           </CardHeader>
           <CardContent>
@@ -75,10 +82,10 @@ export default function Dashboard() {
               </div>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
-                No active training plan.
+                {t.dashboard.noPlan}
                 <br />
                 <Link href="/app/plan/training">
-                  <Button variant="link" className="text-primary">Generate one now</Button>
+                  <Button variant="link" className="text-primary">{t.dashboard.generateNow}</Button>
                 </Link>
               </div>
             )}
@@ -87,7 +94,7 @@ export default function Dashboard() {
 
         <Card className="border-border bg-card">
           <CardHeader>
-            <CardTitle>Recent Activity</CardTitle>
+            <CardTitle>{t.dashboard.recentActivity}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
@@ -105,7 +112,7 @@ export default function Dashboard() {
                   <span className="font-mono text-sm">{workout.duration} min</span>
                 </div>
               ))}
-              {!workouts?.length && <p className="text-muted-foreground text-center py-4">No recent activity.</p>}
+              {!workouts?.length && <p className="text-muted-foreground text-center py-4">{t.dashboard.noActivity}</p>}
             </div>
           </CardContent>
         </Card>
